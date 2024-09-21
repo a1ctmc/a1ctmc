@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDC LTO Exam</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e3e3e3;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+            .question-container {
+        display: none;
+        opacity: 0;
+        transition: opacity 0.5s, transform 0.5s;
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .question-container img {
+            max-width: 100%; /* Ensure images are responsive */
+            max-height: 200px;
+            height: auto; /* Maintain aspect ratio */
+            border-radius: 5px; /* Optional rounded corners */
+            margin-top: 10px; /* Space above the image */
+            margin-bottom: 10px; /* Space below the image */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            display: block; /* Center image within its container */
+            margin-left: auto; /* Center horizontally */
+            margin-right: auto; /* Center horizontally */
+        }
+        .question-container q {
+            font-size: 24px;
+        }
+        .active {
+            display: block;
+            opacity: 1;
+        }
+        button {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+        }
+        footer {
+            background-color: #d6d6d6;
+            color: #7a7a7a;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+            margin-top: auto; /* Push the footer to the bottom */
+            margin-bottom: 0px;
+
+        }
+        .correct-answer { color: green; }
+        .user-wrong { color: red; }
+        img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        label {
+            display: block; /* Makes labels stack vertically */
+            margin: 5px 0; /* Adds spacing between options */
+        }
+        .question-container {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s, transform 0.5s;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            max-height: 600px;
+            min-height: 500px;
+        }
+
+.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(-10px); /* Slight upward movement */
+}
+    </style>
+</head>
+<body>
+
+<h1>PDC Competency Exam Reviewer</h1>
+<div id="examForm"></div>
+
+<button type="button" id="previousButton" onclick="previousQuestion()" style="display: none;">Previous</button>
+<button type="button" id="nextButton" onclick="nextQuestion()">Next</button>
+<button type="button" id="submitButton" onclick="calculateScore()">Submit Exam</button>
+<button type="button" id="retakeButton" onclick="retakeExam()" style="display: none;">Retake Exam</button>
+
+<div class="score" id="score"></div>
+<div class="correct-answers" id="correctAnswers"></div>
+<div class="result-message" id="resultMessage"></div>
+
+<footer>
+    <div>Created by: Gelo Aves</div>
+</footer>
+
+<script>
+    const questions = [
+                       {
+            q: "Q. According to RA 4136, which section says that when you buy any vehicle powered by electricity or gasoline, you must have your own garage.(Ayon sa RA 4136, anong seksyon ang nagsasabing kapag bumili ka ng kahit anong sasakyan na pinapaandar ng kuryente or gasolina, marapat lamang na mayroon kang sariling garahe.)",
+            options: {
+                a: "SECTION 7",
+                b: "SECTION 3",
+                c: "SECTION 5",
+            },
+            answer: 'b', //1
+        },
+        {
+            q: "Q. Anyone who drives any vehicle with an engine is called a _______.(Ang sinumang nagmamaneho ng kahit na anong sasakyan na may makina ay tatawagin na _______.)",
+            options: {
+                a: "DRIVER",
+                b: "BACKRIDER",
+                c: "RIDER",
+            },
+            answer: 'a', //2
+        },
+        {
+            q: "Q. What type of license is used only for personal or private vehicles?(Anong uri ng lisensya ang ginagamit lamang sa pansarili o mga pribadong sasakyan?)",
+            options: {
+                a: "NON – PROFESSIONAL LICENSE",
+                b: "PROFESSIONAL LICENSE",
+                c: "STUDENT PERMIT",
+            },
+            answer: 'a', // 3
+        },
+        {
+            q: "Q. If you buy any motor vehicle, you will be called ______.(Kung ikaw ay bumili ng kahit na anong sasakyang may makina, ikaw ay tatawaging ______.)",
+            options: {
+                a: "DRIVER",
+                b: "OWNER",
+                c: "RIDER",
+            },
+            answer: 'b', // 4
+        },
+        {
+            q: "Q. When you leave your car without a driver, the engine off, and the hand brake on, you are called a _______.(Kapag iniwanan mo ang iyong sasakyan na walang driver, patay ang makina, at nakataas ang hand brake, ikaw ay tatawaging _______.)",
+            options: {
+                a: "PARK VEHICLE",
+                b: "STAND BY VEHICLE",
+                c: "NONE OF THE ABOVE",
+            },
+            answer: 'a', // 5
+        },
+        {
+            q: "Q. All types of highways and public roads can never be called or made ________.(Lahat ng uri ng highways at pampublikong daanan kaylan man ay hindi mo pwedeng tawagin or gawing ________.)",
+            options: {
+                a: "PARKING LOT OR GARAGE",
+                b: "LOADING AREA",
+                c: "NONE OF THE ABOVE",
+            },
+            answer: 'a', // 6
+        },
+        {
+            q: "Q. According to RA 4136, you must register your vehicle every year. What section is this?(Ayon sa RA 4136, dapat mong iparehistro ang iyong sasakyan taon taon. Anong seksyon ito?)",
+            options: {
+                a: "SECTION 6",
+                b: "SECTION 3",
+                c: "SECTION 5",
+            },
+            answer: 'c', // 7
+        },
+        {
+            q: "Q. What RA prohibits over-riding/loading in any type of vehicle?(Anong RA ang pinagbabawal ang sobrang sakay sa kahit anong uri ng sasakyan?)",
+            options: {
+                a: "RA 10054",
+                b: "RA 8794",
+                c: "RA 8749",
+            },
+            answer: 'b', // 8
+        },
+        {
+            q: "Q. What type of license plate is used by those with high positions in our government from number 1 to number 17?(Anong uri ng plaka ang ginagamit ng may matataas na katungkulan sa ating gobyerno mula number 1 hanggang number 17?)",
+            options: {
+                a: "DIPLOMAT",
+                b: "PROTOCOL PLATES",
+                c: "PUBLIC PLATE NUMBER",
+            },
+            answer: 'b', // 9
+        },
+        {
+            q: "Q. What section says that the plates must be placed in places that are easily visible. One in front and one behind, and according to the law, it must be kept clean and cared for and must not move or be moved.(Anong seksyon ang nagsasabing ang mga plaka ay dapat ilagay sa mga lugar na madaling makita. Isa sa harapan at sa likuran, at ayon sa batas, ito ay dapat panatiliing malinis at aalagaan at hindi dapat gumagalaw o nagagalaw.)",
+            options: {
+                a: "SECTION 18",
+                b: "SECTION 20",
+                c: "SECTION 7",
+            },
+            answer: 'a', // 10
+        },
+        {
+            q: "Q. What section says that you must always carry your license with you wherever you go, and if you leave it behind, you must not continue driving?(Anong seksyon ang nagsasabing na dapat ay lagi mong dala ang iyong lisensya kahit san ka man magpunta, at kung ito man ay iyong naiwanan, hindi ka dapat magpatuloy sa iyong pagmamaneho?)",
+            options: {
+                a: "SECTION 20",
+                b: "SECTION 19",
+                c: "SECTION 10",
+            },
+            answer: 'b', // 11
+        },
+        {
+            q: "Q. What section says that you will be eligible for a 10 year license renewal if you are found to have no violations for five years?(Anong seksyon ang nagsasabing ikaw ay mapapasama sa 10 years renewal ng lisensya kung ikaw ay mapapatunayang walang violation sa loob ng limang taon?)",
+            options: {
+                a: "SECTION 19",
+                b: "SECTION 23",
+                c: "SECTION 20",
+            },
+            answer: 'b', // 12
+        },
+        {
+            q: "Q. What section says that all ticket violations you commit will be sent to the LTO tickets repository so that you will be given demerit points?(Anong seksyon ang nagsasabing ang lahat ng nagawa mong ticket violation ay ipapadala sa imbakan ng mga ticket sa LTO upang ikaw ay bigyan ng demerit points?)",
+            options: {
+                a: "SECTION 23",
+                b: "SECTION 18",
+                c: "SECTION 22",
+            },
+            answer: 'a', // 13
+        },
+        {
+            q: "Q. What section is amended by RA10930 that will make the rules and regulations more stringent and strict before issuing a license to an applicant?(Anong seksyon ang inamyendahan ng RA10930 na gagawing mas mahigpit at strikto ang mga patakaran at regulasyon bago ibigay ang isang lisensya sa isang aplikante?)",
+            options: {
+                a: "SECTION 23",
+                b: "SECTION 20",
+                c: "SECTION 22",
+            },
+            answer: 'a', // 14
+        },
+        {
+            q: "Q. All holders of licenses that are subject for renewal, and can be proven to have a traffic violation will attend a seminar at the regional office of the LTO. What seminar is this?(Ang lahat ng may mga hawak na lisensya na subject for renewal, at mapapatunayang may traffic violation ay mag aattend ng seminar sa regional office ng LTO. Anong seminar ito?)",
+            options: {
+                a: "DRIVING ENHANCEMENT PROGRAM",
+                b: "PRACTICAL DRIVING COURSE",
+                c: "THEORETICAL DRIVING COURSE",
+            },
+            answer: 'a', // 15
+        },
+        {
+            q: "Q. What section of RA 4136 requires that all drivers who move to their new residence must immediately inform the nearest LTO within 15 days?(Anong seksyon ng RA 4136 na inaatasan na ang lahat ng driver na kapag lumipat sa kanilang bagong tirahan ay dapat iinform agad sa pinaka malapit na LTO sa loob ng 15 araw?)",
+            options: {
+                a: "SECTION 24",
+                b: "SECTION 20",
+                c: "SECTION 25",
+            },
+            answer: 'c', // 16
+        },
+        {
+            q: "Q. What section of RA 4136 where the LTO has the special power to suspend, revoke, and restore your license without going to court (depending on the gravity of your offense)?(Anong seksyon ng RA 4136 na kung saan ang LTO ay may ispesyal na kakayanan na suspendihin, bawiin, at ibalik ang iyong lisensya na hindi na dadaan sa korte (depende sa bigat ng iyong kasalanan)?)",
+            options: {
+                a: "SECTION 25",
+                b: "SECTION 27",
+                c: "SECTION 26",
+            },
+            answer: 'b', // 17
+        },
+        {
+            q: "Q. What section of RA 4136 says that you will only give your license to the LTO deputized traffic enforcer and not to the traffic guide enforcer?(Anong seksyon ng RA 4136 na nagsasabing ang iyong lisensya ay ibibigay mo lamang sa LTO deputized traffic enforcer at hindi sa traffic guide enforcer?)",
+            options: {
+                a: "SECTION 29",
+                b: "SECTION 26",
+                c: "SECTION 28",
+            },
+            answer: 'a', // 18
+        },
+        {
+            q: "Q. A student permit cannot be used as a license. This is a violation of RA 4136 SECTION 30. SP is only for ______?(Ang student permit ay hindi pwedeng gamitin bilang isang lisensya. Ito ay paglabag sa RA 4136 SECTION 30. Ang SP ay para lamang sa mga ______?)",
+            options: {
+                a: "Sa mga nag nanais matuto mag maneho na may kasamang professional driver.",
+                b: "Sa mga marunong nang mag maneho na walang lisensya.",
+                c: "Sa mga gustong matuto na may kasamang duly accredited driving instructor.",
+            },
+            answer: 'c', // 19 
+        },
+        {
+            q: "Q. What section of RA 4136 prohibits driving at 20 kilometers per hour in populated areas and intersections?(Anong seksyon ng RA 4136 ang pinagbabawal ang pagpapatakbo ng 20 kilometers per hour sa mga matataong lugar at interseksyon?)",
+            options: {
+                a: "SECTION 35b",
+                b: "SECTION 35c",
+                c: "SECTION 35a",
+            },
+            answer: 'b', // 20
+        },
+       {
+            q: "Q. What pedal does a manual transmission have?(Anong pedal mayroon ang isang manual transmission?)",
+            options: {
+                a: "CLUTCH AND BRAKE PEDAL",
+                b: "BRAKE AND GAS PEDAL",
+                c: "CLUTCH, BRAKE, AND GAS PEDAL",
+            },
+            answer: 'c', // 21
+        },
+        {
+            q: "Q. How many types of front lights does a modern car have? (Ilang klase ng ilaw mayroon ang isang makabagong kotse sa harapan?)",
+            options: {
+                a: "6",
+                b: "4",
+                c: "5",
+            },
+            answer: 'a', // 22
+        },
+        {
+            q: "Q. How many rear lights does a car have?(Ilang ilaw ang mayroon ang isang sasakyan sa likuran?)",
+            options: {
+                a: "7",
+                b: "5",
+                c: "6",
+            },
+            answer: 'c', // 23
+        },
+        {
+            q: "Q. When should you use high beam?(Kailan mo dapat gamitin ang high beam?)",
+            options: {
+                a: "On the highway with moderate speed and no encounter.(Sa highway na may katamtamang bilis at walang kasalubong.)",
+                b: "Any time I want.(Kahit anong oras na gusto ko.)",
+                c: "When in a crowded street.(Kapag nasa isang masikip na kalye.)",
+            },
+            answer: 'a', // 24
+        },
+        {
+            q: "Q. What are the things to do before getting into a car?(Ano ang mga bagay na dapat gawin bago sumakay ng kotse?)",
+            options: {
+                a: "Walk around and check the physical condition of the vehicle.(Ikutan muna ang paligid at icheck ang physical condition ng sasakyan.)",
+                b: "Get on the car right away.(Sumakay agad.)",
+                c: "None of the above",
+            },
+            answer: 'a', // 25
+        },
+        {
+            q: "Q. What should be done before lowering the hand brake?(Ano ang dapat gawin bago ibaba ang hand brake?)",
+            options: {
+                a: "Step on the clutch.(Tapakan ang clutch.)",
+                b: "Step on the foot brake first.(Tapakan muna ang foot brake.)",
+                c: "Step on the gas.(Tapakan ang gasolina.)",
+            },
+            answer: 'b', // 26
+        },
+        {
+            q: "Q. If youre going to refuel, what are the things to remember?(Kung magpapa gasolina, ano yung mga bagay na dapat tandaan?)",
+            options: {
+                a: "Turn off the engine and don't use a cellphone.(Patayin ang makina at huwag gumamit ng cellphone.)",
+                b: "Just leave the engine on.(Hayaan lang na naka sindi ang makina.)",
+                c: "Answer the cellphone while refueling.(Sagutin ang cellphone habang nagpapa gasolina.)",
+            },
+            answer: 'a', // 27
+        },
+        {
+            q: "Q. What should be done before you start the engine of modern manual cars?(Ano ang dapat gawin bago mo istart ang makina ng mga makabagong manual na sasakyan?)",
+            options: {
+                a: "CLUTCH NEUTRAL",
+                b: "CLUTCH GAS NEUTRAL",
+                c: "CLUTCH BRAKE NEUTRAL",
+            },
+            answer: 'c', // 28
+        },
+        {
+            q: "Q. In an automatic transmission, what should be done before I start the car engine?(Sa isang automatic transmission, ano ang dapat gawin bago I start ang makina ng sasakyan?)",
+            options: {
+                a: "STEP ON THE GAS BEFORE STARTING (TAPAKAN ANG GAS BAGO MAG START)",
+                b: "PUT THE GEAR IN PARK “P” AND STEP ON THE BRAKE (ILAGAY SA PARK “P”  ANG KAMBYO AT TAPAKAN ANG PRENO)",
+                c: "PUT THE GEAR IN PARK “P” AND START (ILAGAY SA LETTER “P” ANG KAMBYO AT IISTART)",
+            },
+            answer: 'b', // 29
+        },
+        {
+            q: "Q. In an automatic transmission vehicle, what should be done before putting the transmission in reverse?(Sa isang automatic transmission na sasakyan, anong dapat gawin bago ilagay ang kambyo sa reverse?)",
+            options: {
+                a: "REVERSE IMMEDIATELY AFTER STEPPING ON THE GAS PEDAL (REVERSE AGAD PAGKATAPOS AY TAPAKAN NA ANG GASOLINA)",
+                b: "STEP ON THE BRAKES WELL BEFORE PUTTING THE TRANSMISSION IN REVERSE (TAPAKAN MUNANG MABUTI ANG PRENO BAGO ILAGAY ANG KAMBYO SA REVERSE)",
+                c: "STEP ON THE GASOLINE BEFORE PUTTING THE TRANSMISSION IN REVERSE (TAPAKAN ANG GASOLINA BAGO ILAGAY SA REVERSE ANG KAMBYO)",
+            },
+            answer: 'b', // 30
+        },
+        {
+            q: "Q. In an automatic transmission car, before turning off the engine, where should the shifter be placed?(Sa isang automatic transmission na kotse, bago patayin ang makina, saan dapat ilagay ang kambyo?)",
+            options: {
+                a: "NEUTRAL",
+                b: "DRIVE",
+                c: "PARK",
+            },
+            answer: 'c', // 31
+        },
+        {
+            q: "Q. In an automatic transmission car, where should the gear shift be placed when you are in a traffic situation?(Sa isang automatic transmission na kotse, saan dapat ilagay ang kambyo kapag ikaw ay nasa ma trapik na sitwasyon?)",
+            options: {
+                a: "Put it in neutral so as not to consume fuel.(Ilagay sa neutral upang hindi kumunsumo ng gasolina.)",
+                b: "Leave it in drive and raise the hand brake.(Hayaang nakalagay sa drive at itaas ang hand brake.)",
+                c: "Leave it in drive and move your right foot to the brake.(Hayaang naka drive at ilipat ang kanang paa sa preno.)",
+            },
+            answer: 'a', // 32
+
+        },
+        {
+            q: "Q. In an automatic transmission car, what is the correct way of stepping on the gas pedal?(Sa isang automatic transmission na kotse, paano ang tamang pagtapak ng gasolina?)",
+            options: {
+                a: "STEP ON THE GASOLINE SLOWLY.(TAPAKAN ANG GASOLINA NG PA UNTI-UNTI AT DAHAN-DAHAN.)",
+                b: "STEP ON THE GAS PEDAL HARD TO AVOID STRAINING THE ENGINE.(TAPAKAN NG MADIIN UPANG HINDI MAHIRAPAN ANG MAKINA.)",
+                c: "STEP ON THE GA PEDAL QUICKLY AND HEAVY.(TAPAKAN NG MABILIS AT MADIIN ANG GASOLINA.)",
+            },
+            answer: 'a', // 33
+
+        },
+        {
+            q: "Q. What will you do if a vehicle in front of you on the left suddenly stops? (Ano ang iyong gagawin kung ang isang sasakyan sa unahan mo na nasa kaliwa ay biglang huminto?)",
+            options: {
+                a: "Continue driving. (Magpatuloy lamang sa iyong pagtakbo.)",
+                b: "Honk your horn until you pass it. (Bumusina hanggang sa malagpasan mo ito.)",
+                c: "Stop as well and assess the situation before proceeding. (Huminto rin at tignan ang sitwasyon bago magpatuloy.)",
+            },
+            answer: 'c', // 34
+
+        },
+        {
+            q: "Q. What will you do when you are approaching an intersection and a vehicle has already stopped? (Ano ang iyong gagawin kapag ikaw ay paparating sa isang intersection at mayroon ng isang sasakyan na nauna nang huminto?)",
+            options: {
+                a: "Let the first vehicle that arrived or stopped go first. (Paunahin ang unang dumating o huminto.)",
+                b: "Race with the other vehicle. (Makipag unahan sa ibang sasakyan.)",
+                c: "Slow down and continue driving. (Magdahan dahan at magpatuloy lamang.)",
+            },
+            answer: 'a', // 35
+        },
+        {
+            q: "Q. At an intersection without a stoplight, two vehicles stop at the same time. Which one should go first? (Sa isang intersection na walang stoplight, may dalawang sasakyan na sabay na tumigil. Alin ang dapat mauna?)",
+            options: {
+                a: "Continue and ignore it. (Magpatuloy lamang at wag pansinin.)",
+                b: "The driver signaling with their right hand should go first. (Ang driver na itinuturo nang kanyang kanang kamay ang siyang dapat na mauna.)",
+                c: "Assert your right of way. (Ipilit ang iyong karapatan.)",
+            },
+            answer: 'b', // 36
+
+        },
+        {
+            q: "Q. When one vehicle is coming from a private road and the other from a public road, which has the right of way? (Kapag ang isang sasakyan ay nanggaling sa isang pribadong daan at ang isa naman ay galing sa isang pampublikong daan, alin ang mas may karapatan na mauna?)",
+            options: {
+                a: "Neither of them can go first. (Wala sa kanila ang pwedeng mauna.)",
+                b: "The vehicle coming from the private road. (Sasakyan na nanggaling sa pribadong daan.)",
+                c: "The vehicle coming from the public road. (Sasakyan na nanggaling sa pampublikong daan.)",
+            },
+            answer: 'c', // 37
+        },
+        {
+            q: "Q. If a vehicle is already inside the yellow box intersection and another is outside, who has the right of way? (Kapag ang isang sasakyan ay nasa loob na nang yellow box intersection, at ang isa naman ay nasa labas, sino yung mas may karapatan na mauna?)",
+            options: {
+                a: "The one outside the yellow box. (Yung nasa labas ng yellow box.)",
+                b: "The one inside the yellow box. (Yung nasa loob ng yellow box.)",
+                c: "The one signaled by the right hand. (Yung tinuturo ng kanang kamay.)",
+            },
+            answer: 'b', // 38
+        },
+        {
+            q: "Q. When driving on a road with a double solid yellow line and a white line in the middle, what does this mean? (Kapag ikaw ay dumadaan sa isang daan na may double solid yellow line na mayroong white line sa gitna, ano ang ibig sabihin nito?)",
+            options: {
+                a: "ABSOLUTE NO OVERTAKING",
+                b: "OVERTAKING ALLOWED",
+                c: "NONE OF THE ABOVE",
+            },
+            answer: 'a', // 39
+        },
+        {
+            q: "Q. While driving, you see a Children Crossing Ahead sign, but no one is crossing. What should you do? (Habang nagmamaneho, mayroon kang nakitang “Children Crossing Ahead” sign ngunit wala ka naming nakitang tao na tumatawid. Ano ang dapat mong gawin?)",
+            options: {
+                a: "CONTINUE DRIVING SINCE NO ONE IS CROSSING. (MAGPATULOY LAMANG SA PAGMAMANEHO DAHIL WALA NAMANG IBANG TAONG TUMATAWID.)",
+                b: "PRESS THE GAS PEDAL TO PASS QUICKLY. (TAPAKAN ANG GAS UPANG MAKALAGPAS AGAD DITO.)",
+                c: "SLOW DOWN AND LOOK AROUND TO SEE IF SOMEONE MIGHT CROSS. (BAGALAN ANG TAKBO AT TIGNAN ANG PALIGID KUNG MAYROONG TAONG MAAARING TUMAWID.)",
+            },
+            answer: 'c', // 40
+        },
+        {
+            q: "Q. What is RA 10586?",
+            options: {
+                a: "Anti-Distracted Driving Act",
+                b: "Anti-Drunk and Drugged Driving Act",
+                c: "Seatbelt Use Act",
+            },
+            answer: 'b', // 41
+        },
+        {
+            q: "Q. What is RA 10913",
+            options: {
+                a: "Seatbelt Use Act",
+                b: "Motorcycle Helmet Act",
+                c: "Anti-Distracted Driving Act",
+            },
+            answer: 'c', // 42
+        },
+        {
+            q: "Q. What is RA 8750",
+            options: {
+                a: "Clean Air Act",
+                b: "Seatbelt Use Act",
+                c: "Child Safety in Motor Vehicles Act",
+            },
+            answer: 'b', // 43
+        },
+        {
+            q: "Q. What is RA 11229",
+            options: {
+                a: "Child Safety in Motor Vehicles Act",
+                b: "Clean Air Act",
+                c: "Motorcycle Helmet Act",
+            },
+            answer: 'a', // 44
+        },
+        {
+            q: "Q. What is RA 4136?",
+            options: {
+                a: "Clean Air Act",
+                b: "Speed Limit Act",
+                c: "Land Transportation and Traffic Code",
+            },
+            answer: 'c', // 45
+        },
+        {
+            q: "Q. What is RA 8749?",
+            options: {
+                a: "Seatbelt Use Act",
+                b: "Clean Air Act",
+                c: "Anti-Distracted Driving Act",
+            },
+            answer: 'b', // 46
+
+        },
+        {
+            q: "Q. What is RA 8794?",
+            options: {
+                a: "Anti-Overloading Act",
+                b: "Motorcycle Helmet Act",
+                c: "Seatbelt Use Act",
+            },
+            answer: 'a', // 47
+        },
+        {
+            q: "Q. What is RA 10666?",
+            options: {
+                a: "Child Safety in Motor Vehicles Act",
+                b: "Anti-Overloading Act",
+                c: "Children’s Safety on Motorcycles Act",
+            },
+            answer: 'c', // 48
+        },
+        {
+            q: "Q. What is RA 11235?",
+            options: {
+                a: "Anti-Drunk and Drugged Driving Act",
+                b: "Seatbelt Use Act",
+                c: "Speed Limiter Act",
+            },
+            answer: 'a', // 49
+        },
+        {
+            q: "Q. What does the first letter B in BLOWBAGETS stand for?",
+            options: {
+                a: "Battery",
+                b: "Belt",
+                c: "Brake",
+            },
+            answer: 'b', // 50
+        },
+        {
+            q: "Q. What does the letter L in BLOWBAGETS stand for?",
+            options: {
+                a: "Lights",
+                b: "Lubricant",
+                c: "License",
+            },
+            answer: 'a', // 51
+        },
+        {
+            q: "What does the letter O in BLOWBAGETS stand for?",
+            options: {
+                a: "Odometer",
+                b: "Oil",
+                c: "Overheat",
+            },
+            answer: 'b', // 52
+        },
+        {
+            q: "Q. What does the letter W in BLOWBAGETS stand for?",
+            options: {
+                a: "Warning lights",
+                b: "Water",
+                c: "Windshield wipers",
+            },
+            answer: 'b', // 53
+        },
+        {
+            q: "Q. What does the letter B in BLOWBAGETS (second B) stand for?",
+            options: {
+                a: "Brakes",
+                b: "Battery",
+                c: "Balance",
+            },
+            answer: 'a', // 54
+        },
+        {
+            q: "Q. What does the letter A in BLOWBAGETS stand for?",
+            options: {
+                a: "Airbag",
+                b: "Alignment",
+                c: "Air",
+            },
+            answer: 'c', // 55
+        },
+        {
+            q: "Q. What does the letter G in BLOWBAGETS stand for?",
+            options: {
+                a: "Gear",
+                b: "Gasoline",
+                c: "Gauge",
+            },
+            answer: 'b', // 56
+        },
+        {
+            q: "Q. What does the letter E in BLOWBAGETS stand for?",
+            options: {
+                a: "Engine",
+                b: "Electricity",
+                c: "Exhaust",
+            },
+            answer: 'a', // 57
+        },
+        {
+            q: "Q. What does the letter T in BLOWBAGETS stand for?",
+            options: {
+                a: "Transmission",
+                b: "Tire",
+                c: "Temperature",
+            },
+            answer: 'b', // 58
+        },
+        {
+            q: "Q. What does the letter S in BLOWBAGETS stand for?",
+            options: {
+                a: "Signal lights",
+                b: "Seatbelt",
+                c: "Self",
+            },
+            answer: 'c', // 59
+        },
+        {
+            q: "Q. ROAD SIGNS: Regulatory signs that, when ignored, will result in a demerit.(ROAD SIGNS: Mga regulasyong senyas na kapag hindi sinunod, magbibigay ng demerit.)",
+            options: {
+                a: "No Parking",
+                b: "No Stopping Anytime",
+                c: "No U-turn",
+            },
+            answer: 'a', // 60
+            img: "images/no parking.png" // Change this to your image path
+        },
+        {
+            q: "Q. ROAD SIGNS: Regulatory signs that, when ignored, will result in a demerit.(ROAD SIGNS: Mga regulasyong senyas na kapag hindi sinunod, magbibigay ng demerit.)?",
+            options: {
+                a: "No left turn",
+                b: "No left curve",
+                c: "No left bend",
+            },
+            answer: 'a', // 62
+            img: "images/no left turn.png" // Change this to your image path
+        },
+        {
+            q: "Q. ROAD SIGNS: Regulatory signs that, when ignored, will result in a demerit.(ROAD SIGNS: Mga regulasyong senyas na kapag hindi sinunod, magbibigay ng demerit.)?",
+            options: {
+                a: "No right curve",
+                b: "No right turn",
+                c: "No right bend",
+            },
+            answer: 'b', // 63
+            img: "images/no right turn.png" // Change this to your image path
+        },
+        {
+            q: "Q. ROAD SIGNS: You are instructed to slow down. What sign is this?(ROAD SIGNS: Inuutusan kang magbagal. Anong senyas ito?)",
+            options: {
+                a: "Pedestrian Crossing",
+                b: "School Zone",
+                c: "Children Crossing",
+            },
+            answer: 'a', // 64
+            img: "images/Pedestrian crossing.png" // Change this to your image path
+        },
+    ];
+
+    let currentQuestionIndex = 0;
+
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    function createExam() {
+        shuffle(questions); // Shuffle the questions
+        let form = document.getElementById('examForm');
+        form.innerHTML = '';
+
+        questions.forEach((question, index) => {
+            let questionDiv = document.createElement('div');
+            questionDiv.classList.add('question-container');
+            questionDiv.innerHTML = `<h3>${question.q}</h3>`;
+            if (question.img) {
+                questionDiv.innerHTML += `<img src="${question.img}" alt="Question Image">`;
+            }
+            const options = Object.entries(question.options);
+            options.forEach(([key, value], idx) => {
+                const letter = String.fromCharCode(65 + idx); // Convert index to A, B, C
+                questionDiv.innerHTML += `
+                    <label>
+                        <input type="radio" name="q${index + 1}" value="${key}">
+                        ${letter}) ${value}
+                    </label>
+                `;
+            });
+            form.appendChild(questionDiv);
+        });
+
+        showQuestion(currentQuestionIndex);
+    }
+
+    function showQuestion(index) {
+        const allQuestions = document.querySelectorAll('.question-container');
+        allQuestions.forEach((q, i) => {
+            q.classList.remove('active');
+            if (i === index) {
+                q.classList.add('active');
+            }
+        });
+
+        document.getElementById('previousButton').style.display = index === 0 ? 'none' : 'block';
+        document.getElementById('nextButton').style.display = index === questions.length - 1 ? 'none' : 'block';
+    }
+
+    function nextQuestion() {
+        if (currentQuestionIndex < questions.length - 1) {
+            currentQuestionIndex++;
+            showQuestion(currentQuestionIndex);
+        }
+    }
+
+    function previousQuestion() {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            showQuestion(currentQuestionIndex);
+        }
+    }
+
+    function calculateScore() {
+        let score = 0;
+        let output = '';
+
+        questions.forEach((question, index) => {
+            const userAnswer = document.querySelector(`input[name="q${index + 1}"]:checked`);
+            if (userAnswer && userAnswer.value === question.answer) {
+                score++;
+            } else {
+                const correctAnswerText = question.answer + ') ' + question.options[question.answer];
+                const userAnswerText = userAnswer ? userAnswer.value + ') ' + question.options[userAnswer.value] : 'No answer';
+                output += `<p>Question ${index + 1}: 
+                    <span class="user-wrong">Your answer: ${userAnswerText}</span> 
+                    <br><span class="correct-answer">Correct answer: ${correctAnswerText}</span></p>`;
+            }
+        });
+
+        document.getElementById('score').innerHTML = `You scored ${score} out of ${questions.length}`;
+        document.getElementById('correctAnswers').innerHTML = output;
+        document.getElementById('submitButton').style.display = 'none';
+        document.getElementById('retakeButton').style.display = 'block';
+    }
+
+    function retakeExam() {
+        currentQuestionIndex = 0;
+        document.getElementById('score').innerHTML = '';
+        document.getElementById('correctAnswers').innerHTML = '';
+        document.getElementById('resultMessage').innerHTML = '';
+        document.getElementById('retakeButton').style.display = 'none';
+        document.getElementById('submitButton').style.display = 'block';
+        createExam();
+    }
+
+    window.onload = createExam;
+</script>
+
+</body>
+</html>
